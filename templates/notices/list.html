@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-2">Notes</h2>
+<p class="text-muted mb-4">Check out important notes and reminders for upcoming events and tasks.</p>
+
+<div class="card shadow-sm p-4">
+    <h3 class="mb-4">Recent Notes</h3>
+
+    {% for notice in notices %}
+        <div class="card border-0 shadow-sm mb-3 p-4" style="border-radius:18px;">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex">
+                    <div style="width:56px; height:56px; border-radius:12px; background:#eaf3ff; display:flex; align-items:center; justify-content:center; font-size:28px; margin-right:18px;">
+                        📋
+                    </div>
+
+                    <div>
+                        <h4 class="mb-1 fw-bold">{{ notice.title }}</h4>
+                        <p class="mb-1 text-muted">{{ notice.description }}</p>
+                        <small class="text-secondary">{{ notice.created_at|timesince }} ago</small>
+                    </div>
+                </div>
+
+                <small class="text-muted">{{ notice.created_at|timesince }} ago</small>
+            </div>
+        </div>
+    {% empty %}
+        <p>No notices available.</p>
+    {% endfor %}
+
+    <div class="text-center mt-4">
+        <a href="/notices/" class="btn btn-outline-primary px-5 py-2" style="border-radius:30px;">
+            View All Notes →
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-primary mt-4" style="border-radius:14px;">
+    <strong>Note:</strong> Important notices and reminders will appear here for employees.
+</div>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %} {% block content %}
+
+<h2 class="mb-4">Add Task</h2>
+
+<form method="POST" class="card p-4 shadow-sm">
+  {% csrf_token %}
+
+  <div class="mb-3">
+    <label>Employee</label>
+    <select name="employee" class="form-control">
+      {% for emp in employees %}
+      <option value="{{ emp.id }}">{{ emp.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Title</label>
+    <input type="text" name="title" class="form-control" />
+  </div>
+
+  <div class="mb-3">
+    <label>Description</label>
+    <textarea name="description" class="form-control"></textarea>
+  </div>
+
+  <div class="mb-3">
+    <label>Deadline</label>
+    <input type="date" name="deadline" class="form-control" />
+  </div>
+
+  <div class="mb-3">
+    <label>Priority</label>
+    <select name="priority" class="form-control">
+      <option value="Low">Low</option>
+      <option value="Medium" selected>Medium</option>
+      <option value="High">High</option>
+      <option value="Urgent">Urgent</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Status</label>
+    <select name="status" class="form-control">
+      <option value="Pending" selected>Pending</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Completed">Completed</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label>Progress (%)</label>
+    <input
+      type="number"
+      name="progress"
+      class="form-control"
+      min="0"
+      max="100"
+      value="0"
+    />
+  </div>
+
+  <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-3">Leave Balance</h2>
+
+<div class="card shadow-sm p-3 mb-3">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label">Select Employee</label>
+            <select name="employee" class="form-control">
+                <option value="">Choose Employee</option>
+                {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if selected_employee and selected_employee.id == emp.id %}selected{% endif %}>
+                        {{ emp.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Show Balance</button>
+        </div>
+    </form>
+</div>
+
+<!-- TOP SMALL CARDS -->
+<div class="row g-3 mb-3">
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100" style="background:#eef5ff; border-radius:16px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold mb-2">Total Monthly Leaves</h6>
+                    <h2 class="fw-bold mb-1">{{ total_leaves }}</h2>
+                    <small class="text-muted">Allocated</small>
+                </div>
+                <div style="width:56px; height:56px; border-radius:50%; background:#d7e8ff; display:flex; align-items:center; justify-content:center; font-size:24px;">
+                    📅
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100" style="background:#eef9f0; border-radius:16px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold mb-2">Leaves Taken</h6>
+                    <h2 class="fw-bold mb-1">{{ taken_leaves }}</h2>
+                    <small class="text-muted">Already taken</small>
+                </div>
+                <div style="width:56px; height:56px; border-radius:50%; background:#d9f2df; display:flex; align-items:center; justify-content:center; font-size:24px;">
+                    ✅
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100" style="background:#fff8ea; border-radius:16px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold mb-2">Leaves Remaining</h6>
+                    <h2 class="fw-bold mb-1">{{ remaining_leaves }}</h2>
+                    <small class="text-muted">Available</small>
+                </div>
+                <div style="width:56px; height:56px; border-radius:50%; background:#ffe9b8; display:flex; align-items:center; justify-content:center; font-size:24px;">
+                    ⏰
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100" style="background:#f5efff; border-radius:16px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold mb-2">Additional Leaves</h6>
+                    <h2 class="fw-bold mb-1">{{ additional_leaves_taken }}</h2>
+                    <small class="text-muted">Extra used</small>
+                </div>
+                <div style="width:56px; height:56px; border-radius:50%; background:#e8dcff; display:flex; align-items:center; justify-content:center; font-size:24px;">
+                    ℹ️
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOTTOM TWO SECTIONS -->
+<div class="row g-3">
+
+    <div class="col-md-6 d-flex">
+        <div class="card p-3 shadow-sm w-100">
+            <h5 class="mb-3">Approved Leave Details</h5>
+
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in approved_leaves %}
+                    <tr>
+                        <td>{{ leave.from_date }}</td>
+                        <td>{{ leave.leave_type }}</td>
+                        <td><span class="badge bg-success">Approved</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">No approved leaves</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6 d-flex">
+        <div class="card p-3 shadow-sm w-100">
+            <h5 class="mb-3">Request Additional Leave</h5>
+
+            <form method="POST" action="/attendance/leave/add/">
+                {% csrf_token %}
+                {% if selected_employee %}
+                    <input type="hidden" name="employee" value="{{ selected_employee.id }}">
+                {% endif %}
+
+                <div class="mb-2">
+                    <label>Leave Type</label>
+                    <select name="leave_type" class="form-control">
+                        <option value="Casual Leave">Casual Leave</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Paid Leave">Paid Leave</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label>From</label>
+                        <input type="date" name="from_date" class="form-control">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>To</label>
+                        <input type="date" name="to_date" class="form-control">
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label>Reason</label>
+                    <textarea name="reason" class="form-control" rows="4"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

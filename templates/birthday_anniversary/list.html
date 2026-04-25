@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h2 class="fw-bold mb-3" style="color:#13294b;">Birthday & Anniversary</h2>
+        <p class="text-muted mb-0" style="max-width:780px; font-size:18px;">
+            Stay updated with upcoming birthdays and anniversaries of your fellow employees.
+            Make them feel special by wishing them!
+        </p>
+    </div>
+
+    {% if today_event %}
+    <div class="card shadow-sm border-0" style="width: 420px; border-radius:18px; overflow:hidden;">
+        <div style="background:#fff8e8; padding:20px;">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="fw-bold mb-2">
+                        🎉 Today is {{ today_event.employee.name }}'s {{ today_event.event_type }}!
+                    </h5>
+                    <p class="text-muted mb-0" style="font-size:16px;">Let's wish them a great day!</p>
+                </div>
+                <span style="font-size:28px; color:#666;">×</span>
+            </div>
+        </div>
+        <div class="text-center p-3 bg-white">
+            <button class="btn btn-primary px-5 py-2" style="border-radius:12px; font-size:18px;">
+                Send Wishes
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0 p-4" style="border-radius:18px;">
+    <h2 class="fw-bold mb-4" style="color:#13294b;">Upcoming Events</h2>
+
+    <div class="mb-4" style="border:1px solid #e5e7eb; border-radius:14px; overflow:hidden;">
+        <div class="d-flex">
+            <a href="?tab=birthdays"
+               style="padding:14px 28px; text-decoration:none; {% if active_tab == 'birthdays' %}border-bottom:3px solid #2563eb; color:#2563eb; font-weight:600;{% else %}color:#6b7280;{% endif %} font-size:18px;">
+                Birthdays
+            </a>
+            <a href="?tab=anniversaries"
+               style="padding:14px 28px; text-decoration:none; {% if active_tab == 'anniversaries' %}border-bottom:3px solid #2563eb; color:#2563eb; font-weight:600;{% else %}color:#6b7280;{% endif %} font-size:18px;">
+                Anniversaries
+            </a>
+        </div>
+    </div>
+
+    {% if active_tab == 'birthdays' %}
+
+        <div class="mb-2" style="font-size:18px; color:#3b4b66;">Birthdays This Month</div>
+
+        {% for b in birthdays %}
+        <div class="card border-0 shadow-sm mb-3" style="border-radius:18px; background:{% if b.event_date.day == today.day and b.event_date.month == today.month %}#fffdf2{% else %}#ffffff{% endif %};">
+            <div class="d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center">
+                    <div style="width:72px; height:72px; border-radius:50%; background:#e5eefc; display:flex; align-items:center; justify-content:center; font-size:34px; margin-right:18px;">
+                        👤
+                    </div>
+
+                    <div>
+                        <div class="fw-bold" style="font-size:22px; color:#13294b;">
+                            {{ b.employee.name }}
+                        </div>
+                        <div style="font-size:18px; color:#4b5563;">
+                            Birthday 🎂 {{ b.event_date|date:"F d" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    {% if b.event_date.day == today.day and b.event_date.month == today.month %}
+                        <div class="text-muted mb-2" style="font-size:16px;">Today</div>
+                    {% else %}
+                        <div class="text-muted mb-2" style="font-size:18px;">{{ b.event_date|date:"F d" }}</div>
+                        <button class="btn btn-light border px-4 py-2" style="border-radius:12px; color:#2563eb;">
+                            🎁 Wish in Advance →
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card border-0 shadow-sm mb-3" style="border-radius:18px;">
+            <div class="p-4 text-muted">No birthdays this month</div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+
+        <div class="mb-2" style="font-size:18px; color:#3b4b66;">Anniversaries This Month</div>
+
+        {% for a in anniversaries %}
+        <div class="card border-0 shadow-sm mb-3" style="border-radius:18px; background:{% if a.event_date.day == today.day and a.event_date.month == today.month %}#fffdf2{% else %}#ffffff{% endif %};">
+            <div class="d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center">
+                    <div style="width:72px; height:72px; border-radius:50%; background:#e5eefc; display:flex; align-items:center; justify-content:center; font-size:34px; margin-right:18px;">
+                        👤
+                    </div>
+
+                    <div>
+                        <div class="fw-bold" style="font-size:22px; color:#13294b;">
+                            {{ a.employee.name }}
+                        </div>
+                        <div style="font-size:18px; color:#4b5563;">
+                            Work Anniversary 🎉
+                            {% if a.years_completed %}
+                                {{ a.years_completed }} Years Completed
+                            {% else %}
+                                Anniversary
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    {% if a.event_date.day == today.day and a.event_date.month == today.month %}
+                        <div class="text-muted mb-2" style="font-size:16px;">Today</div>
+                    {% else %}
+                        <div class="text-muted mb-2" style="font-size:18px;">{{ a.event_date|date:"F d" }}</div>
+                        <button class="btn btn-light border px-4 py-2" style="border-radius:12px; color:#2563eb;">
+                            🎁 Wish in Advance →
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card border-0 shadow-sm mb-3" style="border-radius:18px;">
+            <div class="p-4 text-muted">No anniversaries this month</div>
+        </div>
+        {% endfor %}
+
+    {% endif %}
+
+    <div class="alert alert-primary mt-4 mb-0 border-0" style="border-radius:14px; background:#eef5ff; color:#26415f;">
+        <strong>ℹ️ Note:</strong> Important employee celebrations will appear here so the team can send wishes on time.
+    </div>
+</div>
+
+{% endblock %}

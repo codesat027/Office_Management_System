@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .course-detail-hero,
+    .course-detail-card,
+    .course-resource-card {
+        border-radius: 18px;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        border: 1px solid transparent;
+    }
+
+    .course-detail-hero:hover,
+    .course-detail-card:hover,
+    .course-resource-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        border-color: #dbeafe;
+    }
+
+    .course-hero-image {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        border-radius: 18px;
+    }
+
+    .course-hero-fallback {
+        width: 100%;
+        height: 320px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 70px;
+        background: #dbeafe;
+    }
+
+    .course-pill {
+        background: #eaf2fb;
+        color: #13294b;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .course-action-btn {
+        border-radius: 12px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .course-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.18);
+    }
+
+    .lesson-item {
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: #f8fafc;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.18s ease, transform 0.18s ease;
+        text-decoration: none;
+        color: #13294b;
+    }
+
+    .lesson-item:hover {
+        background: #eff6ff;
+        transform: translateX(2px);
+        color: #13294b;
+    }
+
+    .media-box {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 14px;
+        margin-top: 18px;
+    }
+
+    .resource-link {
+        text-decoration: none;
+        color: #13294b;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: #f8fafc;
+        transition: background 0.18s ease, transform 0.18s ease;
+        margin-bottom: 10px;
+    }
+
+    .resource-link:hover {
+        background: #eff6ff;
+        transform: translateX(2px);
+        color: #13294b;
+    }
+
+    @media (max-width: 767px) {
+        .course-hero-image,
+        .course-hero-fallback {
+            height: 220px;
+        }
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1">{{ course.title }}</h2>
+        <p class="text-muted mb-0">Continue learning and explore course content.</p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="/learning/" class="btn btn-outline-secondary course-action-btn px-4 py-2">
+            ← Back to Courses
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 p-4 mb-4 course-detail-hero">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-5">
+            {% if course.image %}
+                <img src="{{ course.image.url }}" alt="{{ course.title }}" class="course-hero-image">
+            {% else %}
+                <div class="course-hero-fallback">📘</div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-7">
+            <h3 class="fw-bold mb-3" style="color:#13294b;">{{ course.title }}</h3>
+
+            <p class="text-muted mb-3" style="font-size:16px; line-height:1.7;">
+                {{ course.description }}
+            </p>
+
+            <div class="d-flex gap-2 flex-wrap mb-3">
+                <span class="course-pill">Beginner Friendly</span>
+                <span class="course-pill">Self Paced</span>
+                <span class="course-pill">Practical Learning</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 p-4 course-detail-card">
+            <h4 class="mb-3">Course Modules</h4>
+
+            {% for lesson in lessons %}
+                <a href="?lesson={{ lesson.id }}" class="lesson-item">
+                    <span>
+                        {{ lesson.title }}
+                        {% if lesson.id in completed_lessons %}
+                            <span class="text-success fw-bold ms-2">✔ Completed</span>
+                        {% endif %}
+                    </span>
+                    <span class="text-muted">Open →</span>
+                </a>
+            {% empty %}
+                <p>No lessons added yet.</p>
+            {% endfor %}
+        </div>
+
+        {% if selected_lesson %}
+        <div class="card shadow-sm border-0 p-4 mt-4 course-detail-card">
+            <h4 class="mb-3">{{ selected_lesson.title }}</h4>
+
+            {% if selected_lesson.video_url %}
+            <div class="media-box">
+                <h6 class="mb-3">Video</h6>
+                <div class="ratio ratio-16x9">
+                    <iframe src="{{ selected_lesson.video_url }}" allowfullscreen></iframe>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if selected_lesson.recorded_video %}
+            <div class="media-box">
+                <h6 class="mb-3">Recorded Video / Audio</h6>
+                <video width="100%" controls>
+                    <source src="{{ selected_lesson.recorded_video.url }}">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+
+            {% if selected_lesson.notes %}
+            <div class="media-box">
+                <h6 class="mb-3">Notes</h6>
+                <a href="{{ selected_lesson.notes.url }}" target="_blank" class="btn btn-outline-primary">
+                    Open Notes
+                </a>
+            </div>
+            {% endif %}
+
+            {% if selected_lesson.handwritten_notes %}
+            <div class="media-box">
+                <h6 class="mb-3">Handwritten Notes</h6>
+                <a href="{{ selected_lesson.handwritten_notes.url }}" target="_blank" class="btn btn-outline-secondary">
+                    Open Handwritten Notes
+                </a>
+            </div>
+            {% endif %}
+
+            {% if not selected_lesson.video_url and not selected_lesson.recorded_video and not selected_lesson.notes and not selected_lesson.handwritten_notes %}
+            <div class="media-box">
+                <p class="mb-0">No media added for this lesson yet.</p>
+            </div>
+            {% endif %}
+
+            <div class="mt-3">
+                <a href="{% url 'mark_complete' selected_lesson.id %}" class="btn btn-success">
+                    ✔ Mark as Completed
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 p-4 mb-4 course-resource-card">
+            <h4 class="mb-3">Resources</h4>
+
+            {% if selected_lesson %}
+                {% if selected_lesson.notes %}
+                <a href="{{ selected_lesson.notes.url }}" target="_blank" class="resource-link">
+                    <span>📄 Download Notes</span>
+                    <span>→</span>
+                </a>
+                {% endif %}
+
+                {% if selected_lesson.video_url %}
+                <a href="{{ selected_lesson.video_url }}" target="_blank" class="resource-link">
+                    <span>🎥 Watch Video</span>
+                    <span>→</span>
+                </a>
+                {% endif %}
+
+                {% if selected_lesson.handwritten_notes %}
+                <a href="{{ selected_lesson.handwritten_notes.url }}" target="_blank" class="resource-link">
+                    <span>📝 Practice Sheet</span>
+                    <span>→</span>
+                </a>
+                {% endif %}
+            {% endif %}
+
+            <a href="#" class="resource-link mb-0">
+                <span>🏆 Final Assessment</span>
+                <span>→</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

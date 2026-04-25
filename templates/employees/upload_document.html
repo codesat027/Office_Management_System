@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .upload-doc-card {
+        border-radius: 18px;
+        transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+        border: 1px solid transparent;
+        max-width: 760px;
+    }
+
+    .upload-doc-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        border-color: #dbeafe;
+    }
+
+    .upload-doc-btn {
+        border-radius: 12px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .upload-doc-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.18);
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="mb-1">Upload Document</h2>
+        <p class="text-muted mb-0">Upload PDF, image, or document files for this employee profile.</p>
+    </div>
+
+    <a href="/employees/profile/" class="btn btn-outline-secondary upload-doc-btn px-4 py-2">
+        ← Back to Profile
+    </a>
+</div>
+
+<div class="card shadow-sm border-0 p-4 upload-doc-card">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Document Title</label>
+            <input type="text" name="title" class="form-control" placeholder="Enter document title" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Choose File</label>
+            <input type="file" name="file" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary upload-doc-btn px-4 py-2">
+            Upload Document
+        </button>
+    </form>
+</div>
+
+{% endblock %}

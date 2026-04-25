@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .task-top-btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        border-radius: 12px;
+    }
+
+    .task-top-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+        filter: brightness(1.03);
+    }
+
+    .task-section {
+        background: #1e1e2f;
+        color: white;
+        border-radius: 18px;
+        padding: 18px;
+        margin-bottom: 22px;
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .task-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    .task-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1.3fr;
+        padding: 12px 10px;
+        border-bottom: 1px solid #333;
+        align-items: center;
+        transition: background 0.18s ease, transform 0.18s ease;
+    }
+
+    .task-row:hover {
+        background: #2a2a40;
+        transform: scale(1.002);
+    }
+
+    .task-row div {
+        display: flex;
+        align-items: center;
+    }
+
+    .task-header {
+        font-weight: bold;
+        color: #aaa;
+        background: transparent !important;
+    }
+
+    .priority-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .priority-low {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .priority-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .priority-high {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .priority-urgent {
+        background: #fca5a5;
+        color: #7f1d1d;
+    }
+
+    .progress-box {
+        width: 100%;
+    }
+
+    .progress-track {
+        background: #444;
+        border-radius: 999px;
+        height: 8px;
+        overflow: hidden;
+        margin-bottom: 4px;
+    }
+
+    .progress-fill {
+        background: limegreen;
+        height: 8px;
+        border-radius: 999px;
+    }
+
+    .summary-card {
+        border-radius: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .quick-filter-btn {
+        border-radius: 10px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .quick-filter-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Task Board</h2>
+        <p class="text-muted mb-0">Track employee work, status, priority, and progress in one place.</p>
+    </div>
+
+    <a href="/tasks/add/" class="btn btn-primary task-top-btn px-4 py-2">
+        + Add Task
+    </a>
+</div>
+
+<!-- QUICK FILTERS ONLY -->
+<div class="card p-3 shadow-sm mb-4">
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="/tasks/" class="btn btn-outline-dark btn-sm quick-filter-btn">All</a>
+        <a href="/tasks/?status=Pending" class="btn btn-outline-secondary btn-sm quick-filter-btn">Pending</a>
+        <a href="/tasks/?status=In+Progress" class="btn btn-outline-warning btn-sm quick-filter-btn">In Progress</a>
+        <a href="/tasks/?status=Completed" class="btn btn-outline-success btn-sm quick-filter-btn">Completed</a>
+        <a href="/tasks/?priority=High" class="btn btn-outline-danger btn-sm quick-filter-btn">High Priority</a>
+        <a href="/tasks/?priority=Urgent" class="btn btn-danger btn-sm quick-filter-btn">Urgent</a>
+    </div>
+</div>
+
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm text-center summary-card">
+            <h6 class="text-muted">Pending</h6>
+            <h4 class="fw-bold">{{ pending_count }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm text-center summary-card" style="background:#fffbeb;">
+            <h6 class="text-muted">In Progress</h6>
+            <h4 class="fw-bold text-warning">{{ progress_count }}</h4>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm text-center summary-card" style="background:#ecfdf5;">
+            <h6 class="text-muted">Completed</h6>
+            <h4 class="fw-bold text-success">{{ completed_count }}</h4>
+        </div>
+    </div>
+</div>
+
+<!-- TODO -->
+<div class="task-section">
+    <h5 class="mb-3">TODO</h5>
+
+    <div class="task-row task-header">
+        <div>Task</div>
+        <div>Assigned To</div>
+        <div>Priority</div>
+        <div>Deadline</div>
+        <div>Progress</div>
+    </div>
+
+    {% for task in tasks %}
+        {% if task.status == "Pending" %}
+        <div class="task-row">
+            <div>{{ task.title }}</div>
+            <div>{{ task.employee.name }}</div>
+            <div>
+                <span class="priority-pill {% if task.priority == 'Low' %}priority-low{% elif task.priority == 'Medium' %}priority-medium{% elif task.priority == 'High' %}priority-high{% else %}priority-urgent{% endif %}">
+                    {{ task.priority }}
+                </span>
+            </div>
+            <div>{{ task.deadline }}</div>
+            <div>
+                <div class="progress-box">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:{{ task.progress }}%;"></div>
+                    </div>
+                    <small>{{ task.progress }}%</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- IN PROGRESS -->
+<div class="task-section">
+    <h5 class="mb-3">IN PROGRESS</h5>
+
+    <div class="task-row task-header">
+        <div>Task</div>
+        <div>Assigned To</div>
+        <div>Priority</div>
+        <div>Deadline</div>
+        <div>Progress</div>
+    </div>
+
+    {% for task in tasks %}
+        {% if task.status == "In Progress" %}
+        <div class="task-row">
+            <div>{{ task.title }}</div>
+            <div>{{ task.employee.name }}</div>
+            <div>
+                <span class="priority-pill {% if task.priority == 'Low' %}priority-low{% elif task.priority == 'Medium' %}priority-medium{% elif task.priority == 'High' %}priority-high{% else %}priority-urgent{% endif %}">
+                    {{ task.priority }}
+                </span>
+            </div>
+            <div>{{ task.deadline }}</div>
+            <div>
+                <div class="progress-box">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:{{ task.progress }}%;"></div>
+                    </div>
+                    <small>{{ task.progress }}%</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- DONE -->
+<div class="task-section">
+    <h5 class="mb-3">DONE</h5>
+
+    <div class="task-row task-header">
+        <div>Task</div>
+        <div>Assigned To</div>
+        <div>Priority</div>
+        <div>Deadline</div>
+        <div>Progress</div>
+    </div>
+
+    {% for task in tasks %}
+        {% if task.status == "Completed" %}
+        <div class="task-row">
+            <div>{{ task.title }}</div>
+            <div>{{ task.employee.name }}</div>
+            <div>
+                <span class="priority-pill {% if task.priority == 'Low' %}priority-low{% elif task.priority == 'Medium' %}priority-medium{% elif task.priority == 'High' %}priority-high{% else %}priority-urgent{% endif %}">
+                    {{ task.priority }}
+                </span>
+            </div>
+            <div>{{ task.deadline }}</div>
+            <div>
+                <div class="progress-box">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:100%; background:green;"></div>
+                    </div>
+                    <small>100%</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% endblock %}

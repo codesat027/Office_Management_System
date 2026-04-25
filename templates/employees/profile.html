@@ -1,0 +1,151 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container mt-4">
+  <!-- PROFILE HEADER -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <h3>{{ employee.name }}</h3>
+    <p class="text-muted">{{ display_email }}</p>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <h5>Attendance</h5>
+
+    {% for a in attendance %}
+    <div class="d-flex justify-content-between border-bottom py-2">
+      <span>{{ a.date }}</span>
+      <span>{{ a.status }}</span>
+    </div>
+    {% empty %}
+    <p>No attendance data</p>
+    {% endfor %}
+  </div>
+
+  <!-- TASKS -->
+  <div class="card p-4 mb-4 shadow-sm">
+    <h5>Tasks</h5>
+
+    <ul>
+      {% for task in tasks %}
+      <li>{{ task.title }}</li>
+      {% empty %}
+      <li>No tasks</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div id="documents-section" class="mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5>Documents</h5>
+
+      <a href="{% url 'upload_document' %}" class="btn btn-primary">
+        + Upload
+      </a>
+    </div>
+
+    <!-- PREVIEW -->
+    {% if selected_document %}
+    <div class="card p-3 mb-3">
+      <div class="d-flex justify-content-between">
+        <h6>Preview: {{ selected_document.title }}</h6>
+
+        <a
+          href="/employees/profile/#documents-section"
+          class="btn btn-sm btn-secondary"
+        >
+          ← Back
+        </a>
+      </div>
+
+      {% with file_url=selected_document.file.url|lower %}
+
+      <!-- PDF VIEW (FIXED) -->
+      {% if ".pdf" in file_url %}
+      <div class="media-preview-box mt-3">
+        <div id="pdf-pages"></div>
+      </div>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+      <script>
+        const pdfUrl = "{{ selected_document.file.url }}";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+        pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
+          const container = document.getElementById("pdf-pages");
+
+          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            pdf.getPage(pageNumber).then(function (page) {
+              const canvas = document.createElement("canvas");
+              canvas.style.width = "100%";
+              canvas.style.marginBottom = "20px";
+              canvas.style.borderRadius = "10px";
+              canvas.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+
+              container.appendChild(canvas);
+
+              const context = canvas.getContext("2d");
+              const viewport = page.getViewport({ scale: 1.5 });
+
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+
+              page.render({
+                canvasContext: context,
+                viewport: viewport,
+              });
+            });
+          }
+        });
+      </script>
+
+      <!-- IMAGE VIEW -->
+      {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url %}
+      <div class="text-center mt-3">
+        <img
+          src="{{ selected_document.file.url }}"
+          style="max-width: 100%; max-height: 600px; border-radius: 10px"
+        />
+      </div>
+
+      {% else %}
+      <p class="text-muted mt-3">Preview not available for this file type.</p>
+      {% endif %} {% endwith %}
+    </div>
+    {% endif %}
+
+    <!-- DOCUMENT LIST -->
+    {% for doc in documents %}
+    <div
+      class="p-3 mb-2 bg-light rounded d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <b>{{ doc.title }}</b><br />
+        <small class="text-muted">{{ doc.uploaded_at|date:"d M Y" }}</small>
+      </div>
+
+      <div>
+        <a
+          href="/employees/profile/?doc={{ doc.id }}#documents-section"
+          class="btn btn-sm btn-primary"
+        >
+          View
+        </a>
+
+        <a
+          href="{% url 'delete_document' doc.id %}"
+          class="btn btn-sm btn-danger"
+        >
+          Delete
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No documents uploaded.</p>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

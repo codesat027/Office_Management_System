@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="mb-4">Monthly Leave Report</h2>
+
+<div class="card shadow-sm p-4 mb-4">
+    <form method="GET" class="row g-3 align-items-end">
+
+        <div class="col-md-4">
+            <label class="form-label">Employee</label>
+            <select name="employee" class="form-control">
+                <option value="">All Employees</option>
+                {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if selected_employee == emp.id|stringformat:"s" %}selected{% endif %}>
+                        {{ emp.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Year</label>
+            <select name="year" class="form-control">
+                <option value="">All Years</option>
+                {% for year in years %}
+                    <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>
+                        {{ year }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Filter Report</button>
+        </div>
+
+    </form>
+</div>
+
+<div class="card shadow-sm p-4 mb-4">
+    <h4 class="mb-3">Monthly Leave Report</h4>
+    <canvas id="leaveChart" height="100"></canvas>
+</div>
+
+<div class="card shadow-sm p-4">
+    <h4 class="mb-3">Leave History</h4>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Days</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave in leaves %}
+            <tr>
+                <td>{{ leave.employee.name }}</td>
+                <td>{{ leave.leave_type }}</td>
+                <td>{{ leave.from_date }}</td>
+                <td>{{ leave.to_date }}</td>
+                <td>{{ leave.total_days }}</td>
+                <td>
+                    {% if leave.status == "Approved" %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif leave.status == "Rejected" %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No leave records found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('leaveChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for month in month_names %}'{{ month }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Leave Days',
+            data: [{% for days in monthly_leave_days %}{{ days }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}
