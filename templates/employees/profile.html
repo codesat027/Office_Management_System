@@ -1,151 +1,447 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
 
-<div class="container mt-4">
-  <!-- PROFILE HEADER -->
-  <div class="card p-4 mb-4 shadow-sm">
-    <h3>{{ employee.name }}</h3>
-    <p class="text-muted">{{ display_email }}</p>
-  </div>
+<style>
+    .profile-header-card {
+        border-radius: 18px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    }
 
-  <!-- ATTENDANCE -->
-  <div class="card p-4 mb-4 shadow-sm">
-    <h5>Attendance</h5>
+    .profile-avatar {
+        width: 135px;
+        height: 135px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eaf2fb;
+    }
 
-    {% for a in attendance %}
-    <div class="d-flex justify-content-between border-bottom py-2">
-      <span>{{ a.date }}</span>
-      <span>{{ a.status }}</span>
+    .profile-avatar-box {
+        width: 135px;
+        height: 135px;
+        border-radius: 50%;
+        background: #eaf2fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 58px;
+    }
+
+    .profile-name {
+        font-size: 42px;
+        font-weight: 800;
+        color: #082f63;
+    }
+
+    .profile-position {
+        font-size: 28px;
+        color: #555;
+    }
+
+    .small-pill {
+        background: #eaf2fb;
+        color: #0f172a;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+        margin-right: 8px;
+        margin-top: 6px;
+    }
+
+    .profile-action-row {
+        border-top: 1px solid #ddd;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        text-align: center;
+    }
+
+    .profile-action-row a {
+        padding: 20px 10px;
+        text-decoration: none;
+        color: #111;
+        font-size: 20px;
+        transition: 0.2s ease;
+    }
+
+    .profile-action-row a:hover {
+        background: #f1f5f9;
+        color: #2563eb;
+    }
+
+    .profile-tabs {
+        display: flex;
+        gap: 28px;
+        border-bottom: 1px solid #d1d5db;
+        margin: 24px 0;
+        flex-wrap: wrap;
+    }
+
+    .profile-tabs a {
+        padding: 10px 0;
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .profile-tabs a.active {
+        color: #2563eb;
+        border-bottom: 3px solid #2563eb;
+        font-weight: 700;
+    }
+
+    .profile-card {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+        transition: 0.2s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .quick-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #eaf2fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 14px;
+        font-size: 20px;
+    }
+
+    .section-card {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+        margin-bottom: 28px;
+    }
+
+    .doc-row {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: 0.2s ease;
+    }
+
+    .doc-row:hover {
+        background: #eff6ff;
+        transform: translateY(-1px);
+    }
+
+    .media-preview-box {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    @media(max-width: 768px) {
+        .profile-name {
+            font-size: 30px;
+        }
+
+        .profile-position {
+            font-size: 22px;
+        }
+
+        .profile-action-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="container-fluid">
+
+    <!-- PROFILE HEADER -->
+    <div class="card profile-header-card mb-4">
+        <div class="p-4">
+            <div class="d-flex align-items-center flex-wrap gap-4">
+
+                {% if employee and employee.photo %}
+                    <img src="{{ employee.photo.url }}" class="profile-avatar">
+                {% else %}
+                    <div class="profile-avatar-box">👤</div>
+                {% endif %}
+
+                <div>
+                    <div class="profile-name">
+                        {{ employee.name|default:request.user.username }}
+                    </div>
+
+                    <div class="profile-position">
+                        {{ employee.position|default:"Employee Profile" }}
+                    </div>
+
+                    <div class="mt-2">
+                        <span class="small-pill">📧 {{ display_email }}</span>
+                        <span class="small-pill">👤 {{ request.user.username }}</span>
+                        <span class="small-pill">🌴 Leave Balance: {{ employee.leave_balance|default:"0" }}</span>
+                    </div>
+                </div>
+
+                <div class="ms-auto fs-2 text-muted">•••</div>
+            </div>
+        </div>
+
+        <div class="profile-action-row">
+            <a href="#">💬 Message</a>
+            <a href="{% if employee.phone %}tel:{{ employee.phone }}{% else %}#{% endif %}">📞 Call</a>
+            <a href="mailto:{{ display_email }}">✉️ Email</a>
+            <a href="#attendance-section">📊 Attendance</a>
+            <a href="#documents-section">📁 Documents</a>
+        </div>
     </div>
-    {% empty %}
-    <p>No attendance data</p>
-    {% endfor %}
-  </div>
 
-  <!-- TASKS -->
-  <div class="card p-4 mb-4 shadow-sm">
-    <h5>Tasks</h5>
-
-    <ul>
-      {% for task in tasks %}
-      <li>{{ task.title }}</li>
-      {% empty %}
-      <li>No tasks</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <!-- DOCUMENTS -->
-  <div id="documents-section" class="mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5>Documents</h5>
-
-      <a href="{% url 'upload_document' %}" class="btn btn-primary">
-        + Upload
-      </a>
+    <!-- TABS -->
+    <div class="profile-tabs">
+        <a href="#overview-section" class="active">Overview</a>
+        <a href="#attendance-section">Attendance</a>
+        <a href="#tasks-section">Tasks</a>
+        <a href="#documents-section">Documents</a>
     </div>
 
-    <!-- PREVIEW -->
-    {% if selected_document %}
-    <div class="card p-3 mb-3">
-      <div class="d-flex justify-content-between">
-        <h6>Preview: {{ selected_document.title }}</h6>
+    <!-- OVERVIEW -->
+    <div id="overview-section" class="row g-4 mb-4">
 
-        <a
-          href="/employees/profile/#documents-section"
-          class="btn btn-sm btn-secondary"
-        >
-          ← Back
-        </a>
-      </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card profile-card p-4 h-100">
+                <h4>Contact<br>Information</h4>
+                <hr>
+                <p><b>Email:</b> {{ display_email }}</p>
+                <p><b>Username:</b> {{ request.user.username }}</p>
+                <p><b>Phone:</b> {{ employee.phone|default:"-" }}</p>
+                <p><b>Position:</b> {{ employee.position|default:"-" }}</p>
+                <p><b>Name:</b> {{ employee.name|default:request.user.username }}</p>
+            </div>
+        </div>
 
-      {% with file_url=selected_document.file.url|lower %}
+        <div class="col-lg-5 col-md-6">
+            <div class="card profile-card p-4 h-100">
+                <h4>About Me</h4>
+                <hr>
+                <p style="font-size:20px; line-height:1.7;">
+                    {% if employee %}
+                        {{ employee.name }} is working as {{ employee.position|default:"Employee" }}
+                        in the Office Management System. This profile can include department,
+                        joining date, skills, attendance summary, tasks, and documents.
+                    {% else %}
+                        No employee record is linked with this login yet.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
 
-      <!-- PDF VIEW (FIXED) -->
-      {% if ".pdf" in file_url %}
-      <div class="media-preview-box mt-3">
-        <div id="pdf-pages"></div>
-      </div>
+        <div class="col-lg-4 col-md-12">
+            <div class="card profile-card p-4 h-100">
+                <h4>Quick Details</h4>
+                <hr>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-      <script>
-        const pdfUrl = "{{ selected_document.file.url }}";
+                <div class="d-flex align-items-center mb-3">
+                    <div class="quick-icon">👤</div>
+                    <div>
+                        <b>{{ employee.name|default:request.user.username }}</b><br>
+                        <small class="text-muted">Employee</small>
+                    </div>
+                </div>
 
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                <div class="d-flex align-items-center mb-3">
+                    <div class="quick-icon">📧</div>
+                    <div>
+                        <b>{{ display_email }}</b><br>
+                        <small class="text-muted">Email</small>
+                    </div>
+                </div>
 
-        pdfjsLib.getDocument(pdfUrl).promise.then(function (pdf) {
-          const container = document.getElementById("pdf-pages");
+                <div class="d-flex align-items-center">
+                    <div class="quick-icon">🌴</div>
+                    <div>
+                        <b>{{ employee.leave_balance|default:"0" }}</b><br>
+                        <small class="text-muted">Leave Balance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-          for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-            pdf.getPage(pageNumber).then(function (page) {
-              const canvas = document.createElement("canvas");
-              canvas.style.width = "100%";
-              canvas.style.marginBottom = "20px";
-              canvas.style.borderRadius = "10px";
-              canvas.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
-
-              container.appendChild(canvas);
-
-              const context = canvas.getContext("2d");
-              const viewport = page.getViewport({ scale: 1.5 });
-
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              page.render({
-                canvasContext: context,
-                viewport: viewport,
-              });
-            });
-          }
-        });
-      </script>
-
-      <!-- IMAGE VIEW -->
-      {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url %}
-      <div class="text-center mt-3">
-        <img
-          src="{{ selected_document.file.url }}"
-          style="max-width: 100%; max-height: 600px; border-radius: 10px"
-        />
-      </div>
-
-      {% else %}
-      <p class="text-muted mt-3">Preview not available for this file type.</p>
-      {% endif %} {% endwith %}
     </div>
-    {% endif %}
 
-    <!-- DOCUMENT LIST -->
-    {% for doc in documents %}
-    <div
-      class="p-3 mb-2 bg-light rounded d-flex justify-content-between align-items-center"
-    >
-      <div>
-        <b>{{ doc.title }}</b><br />
-        <small class="text-muted">{{ doc.uploaded_at|date:"d M Y" }}</small>
-      </div>
+    <!-- ATTENDANCE -->
+    <div id="attendance-section" class="card section-card p-4">
+        <h4>Attendance</h4>
+        <hr>
 
-      <div>
-        <a
-          href="/employees/profile/?doc={{ doc.id }}#documents-section"
-          class="btn btn-sm btn-primary"
-        >
-          View
-        </a>
-
-        <a
-          href="{% url 'delete_document' doc.id %}"
-          class="btn btn-sm btn-danger"
-        >
-          Delete
-        </a>
-      </div>
+        {% if attendance %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in attendance %}
+                    <tr>
+                        <td>{{ a.date }}</td>
+                        <td>{{ a.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="text-muted">No attendance data</p>
+        {% endif %}
     </div>
-    {% empty %}
-    <p class="text-muted">No documents uploaded.</p>
-    {% endfor %}
-  </div>
+
+    <!-- TASKS -->
+    <div id="tasks-section" class="card section-card p-4">
+        <h4>Tasks</h4>
+        <hr>
+
+        {% if tasks %}
+            <ul>
+                {% for task in tasks %}
+                    <li>{{ task.title }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No tasks</p>
+        {% endif %}
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div id="documents-section" class="mb-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Documents</h4>
+
+            <a href="{% url 'upload_document' %}" class="btn btn-primary" style="border-radius:10px;">
+                + Upload
+            </a>
+        </div>
+
+        {% if selected_document %}
+        <div class="card section-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Preview: {{ selected_document.title }}</h6>
+
+                <a href="/employees/profile/#documents-section" class="btn btn-sm btn-outline-secondary">
+                    ← Back
+                </a>
+            </div>
+
+            {% with file_url=selected_document.file.url|lower %}
+
+                {% if ".pdf" in file_url %}
+                    <div class="media-preview-box">
+                        <div id="pdf-pages"></div>
+                    </div>
+
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+                    <script>
+                        const pdfUrl = "{{ selected_document.file.url }}";
+
+                        pdfjsLib.GlobalWorkerOptions.workerSrc =
+                            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+                        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+                            const container = document.getElementById("pdf-pages");
+
+                            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                                pdf.getPage(pageNumber).then(function(page) {
+                                    const canvas = document.createElement("canvas");
+                                    canvas.style.width = "100%";
+                                    canvas.style.marginBottom = "20px";
+                                    canvas.style.borderRadius = "10px";
+                                    canvas.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
+
+                                    container.appendChild(canvas);
+
+                                    const context = canvas.getContext("2d");
+                                    const viewport = page.getViewport({ scale: 1.5 });
+
+                                    canvas.height = viewport.height;
+                                    canvas.width = viewport.width;
+
+                                    page.render({
+                                        canvasContext: context,
+                                        viewport: viewport
+                                    });
+                                });
+                            }
+                        });
+                    </script>
+
+                {% elif ".jpg" in file_url %}
+                    <div class="text-center media-preview-box">
+                        <img src="{{ selected_document.file.url }}" style="max-width:100%; max-height:650px; border-radius:12px;">
+                    </div>
+
+                {% elif ".jpeg" in file_url %}
+                    <div class="text-center media-preview-box">
+                        <img src="{{ selected_document.file.url }}" style="max-width:100%; max-height:650px; border-radius:12px;">
+                    </div>
+
+                {% elif ".png" in file_url %}
+                    <div class="text-center media-preview-box">
+                        <img src="{{ selected_document.file.url }}" style="max-width:100%; max-height:650px; border-radius:12px;">
+                    </div>
+
+                {% else %}
+                    <p class="text-muted">Preview not available for this file type.</p>
+                {% endif %}
+
+            {% endwith %}
+        </div>
+        {% endif %}
+
+        {% for doc in documents %}
+        <div class="doc-row d-flex justify-content-between align-items-center shadow-sm">
+            <div>
+                📄 <strong>{{ doc.title }}</strong><br>
+                <small class="text-muted">{{ doc.uploaded_at|date:"d M Y" }}</small><br>
+
+                <small class="text-primary">
+                    {% with file_url=doc.file.url|lower %}
+                        {% if ".pdf" in file_url %}
+                            PDF File
+                        {% elif ".jpg" in file_url %}
+                            Image (JPG)
+                        {% elif ".jpeg" in file_url %}
+                            Image (JPEG)
+                        {% elif ".png" in file_url %}
+                            Image (PNG)
+                        {% else %}
+                            File
+                        {% endif %}
+                    {% endwith %}
+                </small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="/employees/profile/?doc={{ doc.id }}#documents-section" class="btn btn-sm btn-outline-primary">
+                    View
+                </a>
+
+                <a href="{% url 'delete_document' doc.id %}"
+                   onclick="return confirm('Delete this document?')"
+                   class="btn btn-sm btn-outline-danger">
+                    Delete
+                </a>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-muted">No documents uploaded.</p>
+        {% endfor %}
+    </div>
+
 </div>
 
 {% endblock %}

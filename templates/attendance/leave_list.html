@@ -78,9 +78,9 @@
           <tr>
             <td>{{ leave.employee.name }}</td>
             <td>{{ leave.leave_type }}</td>
-            <td>{{ leave.from_date }}</td>
-            <td>{{ leave.to_date }}</td>
-            <td>{{ leave.total_days }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.end_date|date:"d" }}</td>  <!-- simple placeholder -->
             <td>{{ leave.reason }}</td>
             <td>
               {% if leave.status == "Approved" %}

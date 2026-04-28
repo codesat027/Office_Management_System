@@ -4,15 +4,39 @@ from apps.employees.models import Employee
 from .models import Task
 
 
-@login_required
+# @login_required
+# def task_list(request):
+#     tasks = Task.objects.all().order_by('-id')
+#     employees = Employee.objects.all()
+
+#     return render(request, 'tasks/list.html', {
+#         'tasks': tasks,
+#         'employees': employees
+#     })
+
 def task_list(request):
     tasks = Task.objects.all().order_by('-id')
-    employees = Employee.objects.all()
+
+    status = request.GET.get('status')
+    priority = request.GET.get('priority')
+
+    if status:
+        tasks = tasks.filter(status=status)
+
+    if priority:
+        tasks = tasks.filter(priority=priority)
+
+    pending_count = tasks.filter(status='Pending').count()
+    progress_count = tasks.filter(status='In Progress').count()
+    completed_count = tasks.filter(status='Completed').count()
 
     return render(request, 'tasks/list.html', {
         'tasks': tasks,
-        'employees': employees
+        'pending_count': pending_count,
+        'progress_count': progress_count,
+        'completed_count': completed_count,
     })
+
 
 
 @login_required
