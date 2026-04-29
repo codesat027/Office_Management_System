@@ -53,10 +53,9 @@
 <div class="card p-4 mb-4 shadow-sm">
     <h4>Request Additional Leave</h4>
 
-    <form method="POST" action="/attendance/leave/additional/">
-        {% csrf_token %}
-        <input type="hidden" name="employee" value="{{ selected_employee.id }}">
-
+ <form method="POST" action="{% url 'add_additional_leave' %}">
+    {% csrf_token %}
+    <input type="hidden" name="employee" value="{{ selected_employee.id }}">
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label>From Date</label>
