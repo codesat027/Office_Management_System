@@ -116,3 +116,9 @@ def view_document(request, id):
     response = FileResponse(document.file.open('rb'), content_type=content_type)
     response['Content-Disposition'] = f'inline; filename="{document.file.name}"'
     return response
+
+@login_required
+def tasks_view(request):
+    employee = Employee.objects.filter(user=request.user).first()
+    tasks = Task.objects.filter(employee=employee).order_by('-id') if employee else []
+    return render(request, 'tasks.html', {'tasks': tasks})

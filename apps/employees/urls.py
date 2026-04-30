@@ -7,7 +7,7 @@ urlpatterns = [
     path('edit/<int:id>/', views.edit_employee, name='edit_employee'),
     path('delete/<int:id>/', views.delete_employee, name='delete_employee'),
     path('profile/', views.profile_view, name='profile_view'),
-    
+    path('tasks/', views.tasks_view, name='tasks'),
     # Document related URLs (Important!)
     path('upload-document/', views.upload_document, name='upload_document'),
     path('delete-document/<int:id>/', views.delete_document, name='delete_document'),
