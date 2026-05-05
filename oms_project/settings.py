@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'apps.notices',
     'apps.expenses',
     'apps.birthday_anniversary',
+    'apps.dashboard'
 ]
 
 MIDDLEWARE = [
@@ -90,7 +91,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericValidator',
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
